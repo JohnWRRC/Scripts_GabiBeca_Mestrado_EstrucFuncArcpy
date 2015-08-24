@@ -107,32 +107,52 @@ class MethodsArcpy(object):
         return sum
 
 class metrica_pai_GAP(MethodsArcpy):
+    #passei uma classe por parametro, isso é uma heraca(MethodsArcpy)
+
     def __init__(self,mapa_veg,mapa_buff):
         MethodsArcpy.__init__(self)
+        """
+        Vars:
+        self.mapa_pnt=mapa_buff ------> esta preenchendo uma variavel da classe MethodsArcpy com o mapa de buffer de 2k 
+        self.mapa_veg=mapa_veg  ------> esta preenchendo uma variavel da classe MethodsArcpy com o mapa vegetacao clipado de 10k
+        self.result_sum='' Variavel da classe metreica_paiGAp, recebe o resultado da soma   
+        """
         self.mapa_pnt=mapa_buff
         self.mapa_veg=mapa_veg
         self.result_sum=''        
         
     def travels_buffer(self):
+        #mudando o caminho onde sera salvo o tt
         os.chdir(path_work)
+        #abrindo o txt
         self.txt=open('Estructure_functional.txt','w')
+        #lendo o cabeçalho
         self.txt.write("Pai"+"	"+"Area_Sum\n")
         
+        #Abrindo o self.mapa_buff capturando a coluna FID
         with arcpy.da.SearchCursor(self.mapa_buff,"FID") as cursor:
+            # for nas linhas do mapa de buffer
             for row in cursor:
-                print row[0]
+                #print row[0]
+                #criando a expressao de selecao para os buffers
                 self.query="FID=%d"%row[0]
+                
+                #chamando o metodo de selecao de atributos da classe MethodsArcpy
                 MethodsArcpy.selecByAtributes(self)
+                #chamando o metodo de select by location da classe MethodsArcpy
                 MethodsArcpy.selectByLocation(self)
+                #chamando o metodo que faz a soma da coluna area do shp de vegetacao que esta selecionado
                 self.result_sum=MethodsArcpy.sum_selection(self)
+                #arredondando para duas casa o resultado
                 self.result_sum=round(self.result_sum,2)
+                # criando a linha que sera gravada no txt
                 linha=`row[0]`+"	"+`self.result_sum`+"\n"
+                #escrevendo a linha                
                 self.txt.write(linha)
-   
+                
+        #fechando o txt
         self.txt.close()
         
-        
-        
-           
-
+#instanciando minha classe
 mt=metrica_pai_GAP("clip_buffer10000m_mestrado_gabrielle_100m_explod","buffer_2000m_mestrado_gabrielle")
+mt.travels_buffer()
